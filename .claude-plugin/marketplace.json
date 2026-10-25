@@ -1,0 +1,18 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "nse-day-trader-skill",
+  "description": "NSE Day Trader: an India edition of the Day Trader skill pack",
+  "owner": {
+    "name": "Parin Shah",
+    "url": "https://github.com/parinshahAIbuilder"
+  },
+  "plugins": [
+    {
+      "name": "nse-day-trader-skill",
+      "description": "Nine Claude skills for NSE intraday trading: chart scanner, news monitor, entry timer, exit planner on NSE ticks, a time machine that replays 10,000 sessions, a risk manager with a SEBI insider-trading guard, a rupee budget manager with STT and charges, a Zerodha Kite order executor (paper by default, never without your yes) and IST price alerts.",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/parinshahAIbuilder/nse-day-trader-skill"
+    }
+  ]
+}
