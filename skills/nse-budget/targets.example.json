@@ -1,0 +1,11 @@
+{
+  "source": "Example weights for the weights mode: replace with your own model portfolio",
+  "as_of": "2026-10-23",
+  "weights": [
+    {"ticker": "RELIANCE", "name": "Reliance Industries", "weight": 25},
+    {"ticker": "HDFCBANK", "name": "HDFC Bank", "weight": 25},
+    {"ticker": "INFY", "name": "Infosys", "weight": 20},
+    {"ticker": "TCS", "name": "Tata Consultancy Services", "weight": 15},
+    {"ticker": "ITC", "name": "ITC", "weight": 15}
+  ]
+}

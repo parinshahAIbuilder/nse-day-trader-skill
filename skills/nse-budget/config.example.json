@@ -1,0 +1,37 @@
+{
+  "budget": 100000,
+  "cash_buffer_pct": 10,
+  "max_position_pct": 75,
+  "max_order_inr": 80000,
+  "min_order_inr": 500,
+  "max_loss_per_trade_inr": 1000,
+  "max_daily_loss_inr": 3000,
+  "max_trades_per_day": 3,
+  "max_orders_per_day": 10,
+  "min_reward_risk": 1.0,
+  "require_stop": true,
+  "no_entries_before": "09:30",
+  "no_entries_after": "14:45",
+  "flat_by": "15:10",
+  "fractional": false,
+  "broker": "zerodha",
+  "product": "MIS",
+  "paper": true,
+  "blocked": [],
+  "pit_restricted": {
+    "EXAMPLECO": "designated person: SEBI PIT code of conduct of my employer"
+  },
+  "allow_options": false,
+  "allow_margin": false,
+  "allow_short": false,
+  "pdt_guard": false,
+  "charges": {
+    "brokerage_per_order_inr": 20,
+    "brokerage_pct": 0.03,
+    "stt_sell_pct": 0.025,
+    "exchange_txn_pct": 0.00297,
+    "sebi_fee_pct": 0.0001,
+    "stamp_buy_pct": 0.003,
+    "gst_pct": 18
+  }
+}
