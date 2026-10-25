@@ -1,0 +1,31 @@
+{
+ "info": {
+  "symbol": "THINCO",
+  "companyName": "Thin Co Ltd (synthetic)"
+ },
+ "metadata": {
+  "series": "BE",
+  "status": "Listed",
+  "lastUpdateTime": "26-Oct-2026 10:05:12"
+ },
+ "securityInfo": {
+  "tradingStatus": "Active",
+  "surveillance": {
+   "surv": "ASM",
+   "desc": "Long Term ASM Stage 2"
+  }
+ },
+ "priceInfo": {
+  "lastPrice": 63.1,
+  "change": 3.0,
+  "pChange": 4.99,
+  "previousClose": 60.1,
+  "lowerCP": "57.10",
+  "upperCP": "63.10",
+  "pPriceBand": "5",
+  "intraDayHighLow": {
+   "min": 61.0,
+   "max": 63.1
+  }
+ }
+}

@@ -1,14 +1,14 @@
 ---
 name: nse-day-trader
 description: >-
-  NSE Day Trader: nine skills for intraday trading on the National Stock
+  NSE Day Trader: eleven skills for daily opportunity scans and intraday trading on the National Stock
   Exchange of India. Scans NSE charts for opening-range breakouts and daily
   setups, tracks news, times the entry bar by bar on the IST clock, sets
   stop and target on NSE ticks, replays the rest of the session 10,000 times,
   sizes in rupees after STT and charges, blocks SEBI insider-trading
   conflicts, and turns an approved trade into Zerodha Kite order calls.
   Paper by default, never without your yes. Use when the user says "scan
-  NSE", "find intraday setups", "did RELIANCE break out", "set my stop",
+  NSE", "find intraday setups", "daily opportunity scan", "what is setting up today", "is it in ASM", "any announcements", "did RELIANCE break out", "set my stop",
   "how many shares", "risk check", "place it on Zerodha", "square off", or
   names any nse-* step.
 ---
@@ -21,12 +21,15 @@ own SKILL.md with the full instructions. Read the one for the step at hand
 before running its script.
 
 ```
-nse-scanner -> nse-news -> nse-entry -> nse-exit -> nse-timemachine -> nse-budget -> nse-risk -> nse-broker
+daily:  nse-opportunities -> nse-exchange check -> nse-news
+trade:  nse-scanner -> nse-news -> nse-entry -> nse-exit -> nse-timemachine -> nse-budget -> nse-risk -> nse-broker
 nse-alerts: stop, target, flat by 15:10 IST    (while the trade is open)
 ```
 
 | folder | script | job |
 | --- | --- | --- |
+| `nse-opportunities/` | `picks.py scan --index nifty100 --html` | six setups, per-stock back-test, score, plan, size, HTML report with charts |
+| `nse-exchange/` | `nse_api.py check SYMBOL --write` | NSE status, holidays, quote with circuit band and ASM, announcements, board meetings, deals |
 | `nse-scanner/` | `scan.py universe | daily | orb` | NSE EQ-series universe, pre-market setups, opening-range breakouts |
 | `nse-news/` | `news.py --tickers ...` | new headlines per stock, tagged, plus the exchange-filings checklist |
 | `nse-entry/` | `entry.py check SYMBOL --write` | triggered / waiting / expired, on 5-minute bars |

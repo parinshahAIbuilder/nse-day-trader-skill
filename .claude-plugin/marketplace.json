@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "nse-day-trader-skill",
-      "description": "Nine Claude skills for NSE intraday trading: chart scanner, news monitor, entry timer, exit planner on NSE ticks, a time machine that replays 10,000 sessions, a risk manager with a SEBI insider-trading guard, a rupee budget manager with STT and charges, a Zerodha Kite order executor (paper by default, never without your yes) and IST price alerts.",
+      "description": "Eleven Claude skills for NSE India: daily opportunity scan with back-tests and chart reports, NSE exchange data, chart scanner, news, entry timer, exit planner on NSE ticks, 10,000-session time machine, rupee budget manager with charges, risk manager with a SEBI insider-trading guard, Zerodha Kite order executor (paper by default) and IST alerts.",
       "source": "./",
       "category": "productivity",
       "homepage": "https://github.com/parinshahAIbuilder/nse-day-trader-skill"

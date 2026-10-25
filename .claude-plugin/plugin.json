@@ -1,7 +1,7 @@
 {
   "name": "nse-day-trader-skill",
-  "description": "9 Claude skills for intraday trading on NSE India: scan charts, track news, time entries and exits, replay 10,000 sessions, size in rupees after STT and charges, block SEBI insider-trading conflicts, and build Zerodha Kite orders. Paper by default, never without your yes.",
-  "version": "1.0.0",
+  "description": "11 Claude skills for NSE India: a daily opportunity scan across an index (six setups, per-stock back-tests, a chart report), NSE exchange data (holidays, circuits, ASM, announcements, board meetings, bulk deals), intraday entry and exit timing, 10,000-session replays, rupee sizing after STT and charges, a SEBI insider-trading guard and Zerodha Kite orders. Paper by default, never without your yes.",
+  "version": "1.1.0",
   "author": {
     "name": "Parin Shah",
     "url": "https://github.com/parinshahAIbuilder"
@@ -9,6 +9,20 @@
   "homepage": "https://github.com/parinshahAIbuilder/nse-day-trader-skill",
   "repository": "https://github.com/parinshahAIbuilder/nse-day-trader-skill",
   "license": "MIT",
-  "keywords": ["claude-skills", "nse", "india", "intraday", "day-trading", "zerodha", "kite", "sebi", "opening-range-breakout", "paper-trading"],
+  "keywords": [
+    "claude-skills",
+    "nse",
+    "india",
+    "intraday",
+    "day-trading",
+    "zerodha",
+    "kite",
+    "sebi",
+    "opening-range-breakout",
+    "paper-trading",
+    "stock-screener",
+    "backtesting",
+    "technical-analysis"
+  ],
   "skills": "./"
 }

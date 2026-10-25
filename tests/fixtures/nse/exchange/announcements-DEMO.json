@@ -1,0 +1,29 @@
+[
+ {
+  "symbol": "DEMO",
+  "desc": "Board Meeting Intimation",
+  "an_dt": "25-Oct-2026 18:02:11",
+  "attchmntText": "Demo Industries has informed the Exchange that a meeting of the Board will be held on 26-Oct-2026 to consider Financial Results for the quarter ended September 30, 2026.",
+  "attchmntFile": "https://nsearchives.nseindia.com/corporate/DEMO_25102026180211_BM.pdf",
+  "sm_name": "Demo Industries Limited",
+  "seq_id": "900000002"
+ },
+ {
+  "symbol": "DEMO",
+  "desc": "Credit Rating",
+  "an_dt": "24-Oct-2026 20:43:30",
+  "attchmntText": "Demo Industries has informed the Exchange about a credit rating.",
+  "attchmntFile": "https://nsearchives.nseindia.com/corporate/DEMO_24102026_CR.pdf",
+  "sm_name": "Demo Industries Limited",
+  "seq_id": "900000001"
+ },
+ {
+  "symbol": "DEMO",
+  "desc": "Updates",
+  "an_dt": "10-Oct-2026 11:00:00",
+  "attchmntText": "An old update outside the window.",
+  "attchmntFile": "",
+  "sm_name": "Demo Industries Limited",
+  "seq_id": "900000000"
+ }
+]

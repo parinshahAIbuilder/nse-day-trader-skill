@@ -117,6 +117,22 @@ OPEN = datetime.time(9, 15)
 CLOSE = datetime.time(15, 30)
 EARLY = datetime.time(13, 0)
 
+def _load_live_holidays(path=os.path.join("trader", "nse_holidays.json")):
+    """Add NSE's own holiday list (nse-exchange: nse_api.py holidays --write) to the built-in one."""
+    global CALENDAR_YEARS
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        for d, name in (doc.get("holidays") or {}).items():
+            NSE_HOLIDAYS.setdefault(str(d), str(name))
+        CALENDAR_YEARS = tuple(sorted(set(CALENDAR_YEARS) | {int(y) for y in doc.get("years") or []}))
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+
+
+_load_live_holidays()
+
+
 
 class RiskError(Exception):
     pass
@@ -371,6 +387,7 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
     pr = c.get("pit_restricted") or {}
     pit = ({str(k).upper(): str(v or "") for k, v in pr.items()} if isinstance(pr, dict)
            else {str(k).upper(): "" for k in pr})
+    nse_facts = _nse_facts()
     done_today = placed_today(state, today)
     count_today = len(done_today)
     entries_today = [r for r in done_today if rec_is_entry(r)]
@@ -518,6 +535,26 @@ def check(orders, cfg, portfolio=None, prices=None, state=None, today=None, now=
         # blocked list and size
         if sym in blocked:
             later.append("blocked: %s is on your blocked list" % sym)
+        nf = nse_facts.get(sym) or {}
+        if kind == "entry" and nf:
+            if nf.get("series") and nf["series"] != "EQ":
+                later.append("NSE: %s trades in the %s series (trade-for-trade), so it cannot be day traded"
+                             % (sym, nf["series"]))
+            if nf.get("surveillance"):
+                warns.append("NSE: %s is under surveillance (%s): wider margins, price bands and thin books"
+                             % (sym, nf["surveillance"]))
+            if nf.get("board_meeting_today"):
+                warns.append("NSE: %s has a board meeting today (results or a fund raise can land mid-session)" % sym)
+            uc = _f(nf.get("upper_circuit"))
+            tgt = _f(o.get("take_profit_limit_price")) or _f(plan.get("target"))
+            if uc and tgt and tgt > uc + CENT:
+                warns.append("NSE: the target %s is above today's upper circuit %s: it cannot fill today"
+                             % (_p(tgt), _p(uc)))
+            lc = _f(nf.get("lower_circuit"))
+            stp = _f(o.get("stop_loss_stop_price")) or _f(plan.get("stop"))
+            if lc and stp and stp < lc - CENT:
+                warns.append("NSE: the stop %s is below today's lower circuit %s: at the circuit there may be "
+                             "no buyers to fill it" % (_p(stp), _p(lc)))
         if sym in pit:
             later.append("SEBI PIT: you are a designated person / insider for %s (%s). A day trade is a contra "
                          "trade inside 6 months, and trading needs an open trading window, pre-clearance over "
@@ -736,6 +773,33 @@ def report(res):
         lines.append("Every order passed. nse-broker still asks you yes or no for each one.")
     lines.append("Education and tooling, not financial advice.")
     return "\n".join(lines)
+
+
+def _nse_facts(prices_path=os.path.join("trader", "prices.json"),
+               check_path=os.path.join("trader", "state", "nse_check.json")):
+    """What nse-exchange saved about each symbol: series, surveillance, circuit band, board meeting today."""
+    out = {}
+    try:
+        with open(prices_path, encoding="utf-8") as fh:
+            for sym, d in ((json.load(fh) or {}).get("detail") or {}).items():
+                if isinstance(d, dict) and d.get("source") == "nse":
+                    out[str(sym).upper()] = {k: d.get(k) for k in ("series", "surveillance", "upper_circuit",
+                                                                    "lower_circuit")}
+    except (OSError, ValueError, AttributeError):
+        pass
+    try:
+        with open(check_path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        sym = str(doc.get("symbol") or "").upper()
+        q = doc.get("quote") or {}
+        f = out.setdefault(sym, {})
+        for k in ("series", "surveillance", "upper_circuit", "lower_circuit"):
+            if q.get(k) is not None:
+                f[k] = q[k]
+        f["board_meeting_today"] = any(e.get("days_away") == 0 for e in doc.get("events") or [])
+    except (OSError, ValueError, AttributeError):
+        pass
+    return out
 
 
 def load_prices(pdoc):

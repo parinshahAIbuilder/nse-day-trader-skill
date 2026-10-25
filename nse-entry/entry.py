@@ -94,6 +94,22 @@ OPEN = datetime.time(9, 15)
 CLOSE = datetime.time(15, 30)
 EARLY = datetime.time(13, 0)
 
+def _load_live_holidays(path=os.path.join("trader", "nse_holidays.json")):
+    """Add NSE's own holiday list (nse-exchange: nse_api.py holidays --write) to the built-in one."""
+    global CALENDAR_YEARS
+    try:
+        with open(path, encoding="utf-8") as fh:
+            doc = json.load(fh)
+        for d, name in (doc.get("holidays") or {}).items():
+            NSE_HOLIDAYS.setdefault(str(d), str(name))
+        CALENDAR_YEARS = tuple(sorted(set(CALENDAR_YEARS) | {int(y) for y in doc.get("years") or []}))
+    except (OSError, ValueError, TypeError, AttributeError):
+        pass
+
+
+_load_live_holidays()
+
+
 
 class EntryError(Exception):
     pass

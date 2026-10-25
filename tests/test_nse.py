@@ -215,7 +215,7 @@ class Pipeline(unittest.TestCase):
 class Repo(unittest.TestCase):
     def test_skills_and_python38(self):
         skills = sorted(d for d in os.listdir(ROOT) if d.startswith("nse-"))
-        self.assertEqual(len(skills), 9)
+        self.assertEqual(len(skills), 11)
         for s in skills:
             with open(os.path.join(ROOT, s, "SKILL.md"), encoding="utf-8") as fh:
                 md = fh.read()

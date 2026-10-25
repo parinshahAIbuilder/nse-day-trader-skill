@@ -1,53 +1,74 @@
 # NSE Day Trader skill
 
-Nine Claude skills for intraday trading on the **National Stock Exchange of
-India**: scan charts for setups, track the news, time every entry and exit on
-the IST clock, replay 10,000 sessions before you risk a rupee, size every
-trade in rupees **after STT and charges**, block trades that breach **SEBI's
-insider-trading rules**, and turn an approved trade into **Zerodha Kite**
-order calls.
+**Every trading day, Claude reads the charts of a whole NSE index, tests six
+technical setups on each one, back-tests every match on that stock's own last
+year, and hands you a ranked shortlist with entry, stop, target, position
+size after charges, and a chart. Then it checks the exchange for anything
+that could sink the trade, plans it, sizes it, and builds the Zerodha Kite
+order. It places nothing without your yes.**
 
-Paper trading is the default, and no order goes anywhere until you say yes.
+Eleven Claude skills, plain Python, no API keys.
 
-> Built on Jake Schincariol's MIT-licensed
-> [Day Trader skill](https://github.com/Jakeschincariol/day-trader-skill) for
-> US markets. This edition re-engineers it for India: NSE session and
-> holidays, `.NS` symbols, NSE tick sizes, the EQ-series universe, rupee
-> sizing net of Indian intraday charges, MIS square-off timing, a SEBI PIT
-> guard and Kite order shapes. The US-only skills (SEC earnings analyst,
-> Congress trade tracker) are not included.
+![Daily opportunity scan report](docs/sample-report.png)
 
-## What changes for India
+<sub>Sample report on **synthetic** data (`picks.py demo-data`): the symbols
+and prices are invented so the repo can show the output without
+republishing exchange data. On your machine, `picks.py scan --html` builds
+the same report from live NSE charts.</sub>
 
-| | US original | NSE edition |
-| --- | --- | --- |
-| Session | 9:30 to 16:00 ET, DST | 9:15 to 15:30 IST, no DST |
-| Holidays | NYSE | NSE equity 2026 (Dussehra, Diwali-Balipratipada, ...) |
-| Symbols | TSLA | RELIANCE, M&M, BAJAJ-AUTO (`.NS` added for Yahoo, `.BO` kept) |
-| Universe | Nasdaq Trader lists | NSE `EQUITY_L.csv`, EQ series only (BE / BZ cannot be day traded) |
-| Prices | to the cent | NSE tick bands: ₹0.01 / 0.05 / 0.10 / 0.50 / 1 / 5 |
-| Sizing | dollars, max loss at the stop | rupees, max loss **including** brokerage, STT, NSE, SEBI, stamp, GST |
-| Defaults | flat by 15:55 | entries 9:30 to 14:45, flat by 15:10 (before MIS auto square-off) |
-| Compliance | FINRA PDT | **SEBI PIT**: your own company's stock is always blocked |
-| Broker | Alpaca bracket | Zerodha Kite: MIS BUY, then SL-M stop; target by alert |
+## What a trader gets each morning
 
-## The nine
+| | |
+| --- | --- |
+| ![Top pick card](docs/sample-report-top-pick.png) | **One card per opportunity.** Why it matched (the rule, in words), what else lines up (trend, strength against the Nifty 50, volume), the plan (buy-stop entry, stop, 2R target, 5-session time stop, all on NSE ticks), the size that keeps the loss at the stop inside your max loss **including delivery charges**, and the honest back-test: how often this exact setup hit its target on this stock in the last year, and the average result in R. |
+
+The six setups: 20-day breakout on volume · pullback to EMA20 in an uptrend
+· MACD bullish cross · Bollinger squeeze breakout · holding near the 52-week
+high · oversold bounce. Each is scored 0 to 100 on setup quality, trend,
+relative strength, volume and its own back-test, with penalties for thin
+trading, a wide range or a stretched RSI.
+
+![Daily scan in the terminal](docs/daily-scan-terminal.png)
+
+## Before you trade it: the exchange check
+
+Charts don't know about this afternoon's board meeting. `nse-exchange` reads
+NSE's own website data: market status, the official holiday calendar, the
+stock's circuit band, series and surveillance status, corporate announcements,
+board meetings and bulk / block deals. `nse-risk` then blocks what can't be
+day traded and warns about the rest.
+
+![NSE exchange check](docs/nse-exchange-check.png)
+
+## Intraday: one trade, start to finish
+
+Opening-range breakout on the IST clock, a stop and target on NSE ticks, 10,000
+replays of the rest of the session from the stock's own bars, sizing in rupees
+net of STT and charges, and a risk check, including a **SEBI insider-trading
+guard** that always blocks stocks where you are a designated person.
+
+![Trade pipeline](docs/trade-pipeline.png)
+
+## The eleven skills
 
 | command | job |
 | --- | --- |
-| `/nse-scanner` | Scans NSE charts: opening-range breakouts, 20-day breakouts, flags, oversold bounces |
-| `/nse-news` | New headlines per stock, tagged (results, promoter, SEBI, circuit, RBI...), plus the exchange-filings checklist |
+| `/nse-opportunities` | **Daily scan:** six setups across an index, per-stock back-test, score, plan, size, HTML report with charts and PNG |
+| `/nse-exchange` | **NSE data:** market status, holiday calendar, quote with circuit band and ASM / GSM, announcements, board meetings, bulk / block deals |
+| `/nse-scanner` | Intraday opening-range breakouts across a list, plus pre-market daily setups |
+| `/nse-news` | New headlines per stock, tagged (results, promoter, SEBI, circuit, RBI...) |
 | `/nse-entry` | Watches a setup bar by bar and says the moment the breakout bar closes |
-| `/nse-exit` | Sets stop and target on NSE ticks before you enter; flat by 15:10 |
-| `/nse-timemachine` | Replays the rest of the day 10,000 times from the stock's own bars, plus every past day the rule fired |
-| `/nse-budget` | Sizes to your rupee budget and max loss, net of charges |
-| `/nse-risk` | PASS or BLOCK against your limits, the entry window and the SEBI PIT list |
-| `/nse-broker` | Shows the Kite order calls, records your yes, paper by default |
-| `/nse-alerts` | Rings on the stop, the target, flat-by time and the 9:15 bell, on the NSE calendar |
+| `/nse-exit` | Stop and target on NSE ticks before you enter; flat by 15:10 |
+| `/nse-timemachine` | Replays the rest of the day 10,000 times, plus every past day the rule fired |
+| `/nse-budget` | Shares for your rupee budget and max loss, net of charges |
+| `/nse-risk` | PASS or BLOCK: limits, window, SEBI PIT list, series, surveillance, circuits |
+| `/nse-broker` | Zerodha Kite order calls (MIS BUY, then SL-M), paper by default, your yes required |
+| `/nse-alerts` | Stop, target, flat-by and the 9:15 bell, on NSE's calendar |
 
 ```
-scanner -> news -> entry -> exit -> timemachine -> budget -> risk -> broker   (one trade)
-alerts: stop, target, flat by 15:10                                           (while it is open)
+every day:   nse-opportunities  ->  nse-exchange check  ->  nse-news
+one trade:   nse-entry -> nse-exit -> nse-timemachine -> nse-budget -> nse-risk -> nse-broker
+while open:  nse-alerts (stop, target, flat by 15:10)
 ```
 
 ## Install
@@ -59,70 +80,67 @@ Claude Code, as a plugin:
 /plugin install nse-day-trader-skill@nse-day-trader-skill
 ```
 
-Or copy the folders:
+Or copy the folders into your skills directory:
 
 ```bash
 git clone https://github.com/parinshahAIbuilder/nse-day-trader-skill.git
 cp -r nse-day-trader-skill/nse-* ~/.claude/skills/
 ```
 
-Python 3.8 or newer, standard library only. Copy
-`nse-budget/config.example.json` to `trader/config.json` in your project and
-set your budget, limits and `pit_restricted` list.
+Python 3.8+, standard library only (`--png` screenshots use Playwright if
+installed). Copy `nse-budget/config.example.json` to `trader/config.json` and
+set your budget, limits and `pit_restricted` list. Then ask Claude:
+*"run today's NSE opportunity scan on the Nifty 100 and show me the report"*.
 
-## Example (from the tests)
+## What changed from the US original
 
-The offline fixtures are **synthetic**: real 5-minute bars re-timed to the
-NSE session, symbol DEMO. Monday 19 Oct 2026, 10:00 IST:
+| | US original | NSE edition |
+| --- | --- | --- |
+| Session | 9:30 to 16:00 ET, DST | 9:15 to 15:30 IST; NSE holiday calendar, live from NSE |
+| Symbols | TSLA | RELIANCE, M&M, BAJAJ-AUTO (`.NS` for Yahoo) |
+| Universe | Nasdaq lists | NSE EQ series; Nifty 50 / 100 / 200 / F&O from NSE |
+| Prices | cents | NSE tick bands (₹0.01 to ₹5) |
+| Sizing | dollars | rupees, net of brokerage, STT, NSE, SEBI, stamp, GST |
+| Compliance | FINRA PDT | SEBI PIT guard; BE / BZ series, ASM / GSM, circuit checks |
+| Broker | Alpaca bracket | Zerodha Kite MIS + SL-M |
+| New | | daily multi-setup opportunity scan with back-tests and a chart report; NSE exchange data |
 
-1. Entry: range 9:15 to 9:30 was 1,417.88 to 1,448.72; the 9:55 bar closed at
-   1,456.70, triggered.
-2. Exit: stop 1,433.30 (range midpoint, on the tick), target 1,480.10 (1R),
-   risk ₹23.40 a share, flat by 15:10.
-3. Time Machine: target first 28.8 %, stop first 23.8 %, neither 47.5 %. On
-   57 past sessions the rule fired 32 times: 13 target, 15 stop. A coin flip.
-4. Budget (₹1,00,000, ₹1,000 max loss): 40 shares, ₹58,268. Charges about
-   ₹61 if stopped out, so ₹997 all in. By price alone it would have been 42.
-5. Risk: PASS. With DEMO on your `pit_restricted` list: BLOCK, SEBI PIT.
-6. Broker: Kite `place_order` BUY 40 MIS MARKET, then SL-M SELL at 1,433.30.
+## Tests
 
 ```bash
 python3 -m unittest discover -s tests -v
 ```
 
+28 offline tests: the IST clock and holidays, tick sizes, charges, the full
+trade pipeline, the SEBI block, NSE data parsing, the scan's levels, sizing,
+back-test arithmetic and no look-ahead. Fixtures are synthetic or NSE-shaped
+samples with invented symbols.
+
 ## Fine print
 
-**Not investment advice.** This is software that reads public data and does
-arithmetic. It is not a SEBI-registered investment adviser or research
-analyst, and it does not know your situation. SEBI's own studies of
-individual intraday traders find that most of them lose money. Decide for
-yourself and talk to a SEBI-registered adviser if you need advice.
+**Not investment advice.** This software reads data and does arithmetic. The
+scan is a ranked list of rule matches, not a recommendation to buy or sell,
+and this project is not a SEBI-registered investment adviser or research
+analyst. A back-test is history, not a forecast: it does not see news, gaps
+through a stop, slippage or taxes. SEBI's own studies find that most
+individual intraday traders lose money. Decide for yourself, and talk to a
+SEBI-registered adviser if you need advice.
 
-**Insiders.** If you are a designated person or insider of a listed company,
-put its symbol in `pit_restricted`. A day trade in it is a contra trade, and
-any trade needs an open trading window and pre-clearance. The tool will not
-help you trade it.
+**Data.** Charts come from Yahoo Finance's free, unofficial, delayed
+endpoint. Exchange data comes from the JSON behind nseindia.com's pages, read
+politely and for personal use; it is not a licensed feed and can change.
+For real-time or licensed data use NSE's data products or your broker's API.
 
-**Paper first.** `"paper": true` is the default. Zerodha has no paper account,
-so paper here means no broker call at all. Zerodha's hosted Kite MCP leaves
-out trading tools; order placement needs a self-hosted Kite MCP with your own
-Kite Connect key. Set every order tool to "Needs approval".
+**Orders.** Paper by default. Zerodha's hosted Kite MCP leaves out trading
+tools; placing orders needs a self-hosted Kite MCP with your own Kite Connect
+key. Every order needs a risk PASS, your typed yes, and Claude's Allow once.
 
-**The data is free and unofficial.** Yahoo Finance's chart endpoint can lag,
-change or rate-limit you, and reads 5-minute bars, not ticks. Check anything
-that matters against your broker before you act on it.
-
-**Charges are estimates.** Defaults follow a discount broker's intraday
-schedule (₹20 or 0.03 % brokerage, STT 0.025 % on the sell, NSE 0.00297 %,
-SEBI ₹10 a crore, stamp 0.003 % on the buy, GST 18 %). Your contract note rules.
-
-**Calendar.** NSE's 2026 holidays are built in. Add 2027 when NSE publishes it.
-Muhurat trading is a special session the tools treat as closed.
-
-**Taxes.** Intraday equity gains are speculative business income in India.
-Nothing here is tax advice.
+**Insiders.** Put every company where you are a designated person or insider
+in `pit_restricted`. The pack will not help you trade it.
 
 ## Credits and licence
 
-MIT. Original Day Trader skill © 2026 Jake Schincariol. NSE / India edition
-© 2026 Parin Shah.
+MIT. Built on Jake Schincariol's MIT-licensed
+[Day Trader skill](https://github.com/Jakeschincariol/day-trader-skill) for US
+markets. NSE / India edition, the daily opportunity scan and the NSE exchange
+layer © 2026 Parin Shah.
