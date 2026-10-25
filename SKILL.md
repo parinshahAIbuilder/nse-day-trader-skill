@@ -1,5 +1,5 @@
 ---
-name: nse-day-trader
+name: nse-day-trader-skill
 description: >-
   NSE Day Trader: eleven skills for daily opportunity scans and intraday trading on the National Stock
   Exchange of India. Scans NSE charts for opening-range breakouts and daily
